@@ -18,7 +18,7 @@ io.on('connection', (socket) => {
 
   socket.on('sendPage', (message) => {
     console.log('message: ', message);
-    io.emit('receievePage', message);
+    io.emit('receivePage', message);
   });
 
   socket.on('disconnect', () => {
