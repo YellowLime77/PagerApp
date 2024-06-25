@@ -3,22 +3,39 @@ import 'package:flutter/material.dart';
 import 'main_button.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
-IO.Socket socket = IO.io('https://pagerapp.onrender.com');
-
 void main() {
-
-  socket.on('connect', (_) {
-    print('connect');
-  });
-
-  socket.on('event', (data) => print(data));
-  socket.on('disconnect', (_) => print('disconnect'));
-  socket.on('receivePage', (msg) => print(msg));
-
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late IO.Socket socket;
+
+  @override
+  void initState() {
+    super.initState();
+    socket = IO.io('https://pagerapp.onrender.com', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': false,
+    });
+
+    socket.connect();
+
+    socket.onConnect((_) {
+      print('connected');
+    });
+
+    socket.on('event', (data) => print(data));
+    socket.on('disconnect', (_) => print('disconnected'));
+
+    socket.on('page', (data) {
+      print(data);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +61,7 @@ class MyApp extends StatelessWidget {
   void onTapUp(TapUpDetails details) {
     print('Tap up!');
   
-    socket.emit('sendPage', 'test');
+    socket.emit('page', 'test');
   }
 
   void onTapCancel() {
